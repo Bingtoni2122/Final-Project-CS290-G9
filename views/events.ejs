@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= title %></title>
+  <style>
+    body { font-family: sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+    .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 5px solid #3498db;
+    }
+    .card h3 { color: #3498db; margin-top: 0; border-bottom: 1px dashed #eee; padding-bottom: 10px; margin-bottom: 15px;}
+    .details { margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+    .details strong { display: inline-block; width: 150px; color: #555; }
+    .other-fields strong { display: block; margin-top: 10px; color: #e74c3c; }
+    p { margin: 5px 0; }
+    pre {
+      background-color: #ecf0f1;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><%= title %></h1>
+
+    <% if (!events || events.length === 0) { %>
+      <p>No events found.</p>
+    <% } else { %>
+      <%
+        // Danh sách các trường đã được hiển thị bên ngoài vòng lặp chung (để tránh lặp lại)
+        const mainFields = new Set([
+          'SUMMARY', 'DTSTART', 'DTEND', 'LOCATION', 'DESCRIPTION'
+        ]);
+      %>
+
+      <% events.forEach(ev => { %>
+        <div class="card">
+          <h3><%= ev.SUMMARY || '(Không tiêu đề)' %></h3>
+
+          <div class="details">
+            <p><strong>Date Start:</strong> <%= ev._displayStart || '(Không rõ)' %></p>
+            <p><strong>Date End:</strong> <%= ev._displayEnd || '(Không rõ)' %></p>
+
+            <% if (ev.LOCATION) { %>
+              <p><strong>Location:</strong> <%= ev.LOCATION %></p>
+            <% } %>
+
+            <% if (ev.DESCRIPTION) { %>
+              <p><strong>Description:</strong><br><%= ev.DESCRIPTION.replace(/\n/g, ' ') %></p>
+            <% } %>
+
+          </div>
+
+          <div class="details other-fields">
+            <details>
+              <summary>Details (Total: <%= ev._allProperties.length %>)</summary>
+              <% ev._allProperties.forEach(prop => { %>
+                <% if (!mainFields.has(prop.name)) { %>
+                  <p>
+                    <strong><%= prop.name %>
+                      <% if (prop.params) { %>
+                        (Params: <%= JSON.stringify(prop.params) %>)
+                      <% } %>
+                    </strong>
+                    <span>
+                      <% if (typeof prop.value === 'string') { %>
+                        <%= prop.value.replace(/\n/g, '<br>') %>
+                      <% } else { %>
+                        <%= JSON.stringify(prop.value) %>
+                      <% } %>
+                    </span>
+                  </p>
+                <% } %>
+              <% }) %>
+            </details>
+          </div>
+
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+</body>
+</html>
