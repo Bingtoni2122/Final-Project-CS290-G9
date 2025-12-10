@@ -1,0 +1,90 @@
+[
+  {
+   "summary": "ALS165",
+    "date": "11/03/2025",
+    "time_start": "8:00",
+    "time_end": "9:50",
+    "status": "confirmed",
+    "Description": "Tech COMM Intl Class"
+  },
+  {
+    "summary": "CS261",
+    "date": "11/03/2025",
+    "time_start": "13:00",
+    "time_end": "13:50",
+    "status": "confirmed",
+    "Description": "Data Structure"
+  },
+  {
+    "summary": "CS290",
+    "date": "11/03/2025",
+    "time_start": "14:00",
+    "time_end": "15:50",
+    "status": "confirmed",
+    "Description": "Web Development"
+  },
+  {
+    "summary": "ALS166",
+    "date": "11/04/2025",
+    "time_start": "14:00",
+    "time_end": "16:50",
+    "status": "confirmed",
+    "Description": "Writing/Research for GRAD"
+  },
+  {
+   "summary": "ALS165",
+    "date": "11/05/2025",
+    "time_start": "8:00",
+    "time_end": "9:50",
+    "status": "confirmed",
+    "Description": "Tech COMM Intl Class"
+  },
+  {
+    "summary": "CS261",
+    "date": "11/05/2025",
+    "time_start": "13:00",
+    "time_end": "13:50",
+    "status": "confirmed",
+    "Description": "Data Structure"
+  },
+  {
+    "summary": "CS290",
+    "date": "11/05/2025",
+    "time_start": "14:00",
+    "time_end": "15:50",
+    "status": "confirmed",
+    "Description": "Web Development"
+  },
+  {
+    "summary": "CS261",
+    "date": "11/05/2025",
+    "time_start": "16:00",
+    "time_end": "17:50",
+    "status": "confirmed",
+    "Description": "Data Structure Recitation Activity"
+  },
+  {
+    "summary": "ALS166",
+    "date": "11/06/2025",
+    "time_start": "14:00",
+    "time_end": "16:50",
+    "status": "confirmed",
+    "Description": "Writing/Research for GRAD"
+  },
+  {
+   "summary": "ALS165",
+    "date": "11/07/2025",
+    "time_start": "8:00",
+    "time_end": "9:50",
+    "status": "confirmed",
+    "Description": "Tech COMM Intl Class"
+  },
+  {
+    "summary": "CS261",
+    "date": "11/07/2025",
+    "time_start": "13:00",
+    "time_end": "13:50",
+    "status": "confirmed",
+    "Description": "Data Structure"
+  }
+]
