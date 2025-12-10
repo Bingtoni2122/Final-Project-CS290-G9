@@ -26,7 +26,7 @@
   {
     "summary": "Deli Service Team 2pm-4:30pm ",
     "date": "10/19/2025",
-    "time_start": "24:00",
+    "time_start": "00:00",
     "time_end": "02:30",
     "status": "CONFIRMED",
     "description": "Deli Service Team\n2pm-4:30pm\nOct 19, 2025\n\n\n\n\n\n\n\n(key: CHGLDGDDG-CHDCDHCJC do not alter)"
@@ -58,7 +58,7 @@
   {
     "summary": "Deli Service Team 2:35pm-8:30pm ",
     "date": "10/24/2025",
-    "time_start": "24:35",
+    "time_start": "00:35",
     "time_end": "06:30",
     "status": "CONFIRMED",
     "description": "Deli Service Team\n2:35pm-8:30pm\nOct 24, 2025\n\n\n\n\n\n\n\n(key: CHGLDGDDG-CHDCDHCDH do not alter)"
@@ -266,7 +266,7 @@
   {
     "summary": "Deli Service Team 2:15pm-6pm ",
     "date": "10/31/2025",
-    "time_start": "24:15",
+    "time_start": "00:15",
     "time_end": "04:00",
     "status": "CONFIRMED",
     "description": "Deli Service Team\n2:15pm-6pm\nOct 31, 2025\n\n\n\n\n\n\n\n(key: CGCNLHGBL-CHCGHGHDJ do not alter)"
