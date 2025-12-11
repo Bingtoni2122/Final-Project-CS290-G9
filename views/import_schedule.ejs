@@ -1,0 +1,123 @@
+<%#
+// 這個模板用於顯示 "Import Schedule Data" 的彈出視窗（Modal）。
+// 修正點：統一類別名稱和 ID，並確保預設隱藏。
+%>
+
+<%# 修正 1 & 2: 類別從 modal-backdrop 改為 modal-overlay，ID 從 importModalBackdrop 改為 importModal %>
+<div class="modal-overlay" id="importModal" style="display: none;"> 
+    <div class="modal-content">
+        <header class="modal-header">
+            <h2>Import Schedule Data</h2>
+            <p>Paste your exported schedule data from W2W or OSU systems</p>
+            <%# 修正 3: 關閉按鈕類別從 close-modal 改為 close-button %>
+            <button class="close-button" onclick="closeImportModal()">
+                <i class="icon">×</i> 
+            </button>
+        </header>
+
+        <div class="tabs-container">
+            <%# Tabs for selecting data source %>
+            <div class="import-tabs">
+                <button class="import-tab active" data-source="w2w">
+                    <i class="icon">📂</i> W2W Schedule
+                </button>
+                <button class="import-tab" data-source="osu">
+                    <i class="icon">🏫</i> OSU Timetable
+                </button>
+            </div>
+
+            <%# Content area for the selected tab %>
+            <div class="tab-content w2w-content active" id="w2wContent">
+                <%# ... W2W Form 內容保持不變 ... %>
+                <form id="w2wImportForm" action="/import-w2w" method="POST">
+                    <label for="w2wData">W2W Work Schedule Data</label>
+                    <textarea 
+                        id="w2wData" 
+                        name="scheduleData" 
+                        rows="6" 
+                        placeholder="Paste W2W schedule data here... Format: Day, Start Time, End Time, Position, Location Example: Monday, 14:00, 18:00, Front Desk, Thompson Library Wednesday, 14:00, 18:00, Front Desk, Thompson Library"
+                    ></textarea>
+
+                    <div class="format-info">
+                        <label>
+                            <i class="icon">ⓘ</i> Format:
+                        </label>
+                        <p class="format-tip">
+                            Day, Start Time (HH:MM), End Time (HH:MM), Position, Location 
+                        </p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-content osu-content" id="osuContent" style="display:none;">
+                <%# ... OSU Form 內容保持不變 ... %>
+                <form id="osuImportForm" action="/import-osu" method="POST">
+                    <label for="osuData">OSU Class Timetable Data</label>
+                    <textarea 
+                        id="osuData" 
+                        name="scheduleData" 
+                        rows="6" 
+                        placeholder="Paste OSU timetable data here... Format: Day, Course, Start Time, End Time, Location Example: Tuesday, CS290, 14:00, 15:50, Baker Hall 150"
+                    ></textarea>
+
+                    <div class="format-info">
+                        <label>
+                            <i class="icon">ⓘ</i> Format:
+                        </label>
+                        <p class="format-tip">
+                            Day, Course Name, Start Time (HH:MM), End Time (HH:MM), Location
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <footer class="modal-footer">
+            <button class="btn-cancel" onclick="closeImportModal()">Cancel</button>
+            <button class="btn-primary" onclick="submitImportForm()">Import Schedule</button>
+        </footer>
+    </div>
+</div>
+
+<script>
+    // --- Modal 控制函數 ---
+    function openImportModal() {
+        // 修正 2: 使用新的 ID 'importModal'
+        document.getElementById('importModal').style.display = 'flex';
+    }
+
+    function closeImportModal() {
+        // 修正 2: 使用新的 ID 'importModal'
+        document.getElementById('importModal').style.display = 'none';
+    }
+
+    // Tab 切換邏輯 (保持不變，因為邏輯是正確的)
+    document.querySelectorAll('.import-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 移除所有 tab 的 active 狀態
+            document.querySelectorAll('.import-tab').forEach(t => t.classList.remove('active'));
+            // 設置當前 tab 為 active
+            this.classList.add('active');
+
+            const source = this.getAttribute('data-source');
+            
+            // 隱藏所有內容，顯示當前 tab 的內容
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.getElementById(source + 'Content').style.display = 'block';
+        });
+    });
+
+    // 提交邏輯 (保持不變)
+    function submitImportForm() {
+        const activeTab = document.querySelector('.import-tab.active');
+        if (!activeTab) return;
+
+        const source = activeTab.getAttribute('data-source');
+        
+        if (source === 'w2w') {
+            document.getElementById('w2wImportForm').submit();
+        } else if (source === 'osu') {
+            document.getElementById('osuImportForm').submit();
+        }
+    }
+</script>

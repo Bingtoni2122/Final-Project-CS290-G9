@@ -1,0 +1,476 @@
+/* 基本重置 */
+body {
+    font-family: 'Roboto', sans-serif; /* 替換為您喜歡的字體 */
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.schedule-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* --- 標題區 --- */
+.schedule-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e3a8a; /* 深藍色，用於強調 */
+    margin-bottom: 5px;
+}
+
+.schedule-header .subtitle {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* --- 按鈕區 --- */
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.actions button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.actions .add-event {
+    background-color: #10b981; /* 綠色 */
+    color: white;
+}
+
+.actions .add-event:hover {
+    background-color: #059669;
+}
+
+.actions .import-schedule {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.actions .import-schedule:hover {
+    background-color: #d1d5db;
+}
+
+.icon {
+    font-style: normal;
+    font-weight: 700;
+}
+
+/* --- 選項卡區 --- */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.tabs .tab {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px; /* 圓角膠囊形狀 */
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    text-decoration: none; /* 移除超連結下劃線 */
+}
+
+.tabs .tab.active {
+    background-color: #1e3a8a; /* 深藍色 */
+    color: white;
+    font-weight: 500;
+}
+
+.tabs .tab:hover:not(.active) {
+    background-color: #e5e7eb;
+}
+
+/* --- 行程表網格佈局 --- */
+.schedule-grid {
+    display: grid;
+    /* 建立多欄，minmax 確保每個欄位至少 200px 寬，並平均分佈剩餘空間 */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.day-column {
+    /* 確保卡片可以堆疊 */
+    display: flex;
+    flex-direction: column; 
+    /* 每個欄位的背景和分隔線，模擬照片中的設計 */
+    border-right: 1px solid #e5e7eb; 
+    padding-right: 15px;
+}
+
+/* 移除最後一個欄位的右邊框 */
+.schedule-grid > .day-column:last-of-type {
+    border-right: none;
+    padding-right: 0;
+}
+
+.day-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 20px 0;
+    padding-bottom: 5px;
+}
+
+/* --- 事件卡片 --- */
+.event-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 輕微陰影 */
+    border-left: 5px solid transparent; /* 為不同類型事件添加顏色條 */
+    position: relative;
+}
+
+.event-card.work {
+    background-color: #ecfdf5; /* 淺綠色背景 */
+    border-left-color: #10b981; /* 工作：綠色邊條 */
+}
+
+.event-card.class {
+    background-color: #eff6ff; /* 淺藍色背景 */
+    border-left-color: #3b82f6; /* 課程：藍色邊條 */
+}
+
+/* 🌟 佔位符卡片樣式 🌟 */
+.placeholder-card {
+    background-color: #f8f8f8; /* 淺灰色背景 */
+    border: 1px dashed #dddddd; /* 虛線邊框 */
+    border-radius: 8px;
+    margin-bottom: 15px; /* 匹配事件卡片的間距 */
+    
+    /* 設置最小高度 (min-height 是在 EJS 中設置的行內樣式) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px; 
+}
+
+.no-events-text {
+    color: #aaaaaa;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.event-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 5px 0;
+    line-height: 1.3;
+}
+
+.tag {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.work-tag {
+    background-color: #34d399; /* 綠色標籤 */
+    color: #065f46;
+}
+
+.class-tag {
+    background-color: #60a5fa; /* 藍色標籤 */
+    color: #1e3a8a;
+}
+
+.time {
+    color: #4b5563;
+    font-size: 13px;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.details {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 3px 0;
+    /* 確保詳細資訊中的圖標和文字對齊 */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ==================================== */
+/* --- 統一 Modal 樣式 (適用於 Import 和 Add Event) --- */
+/* ==================================== */
+
+/* --- 1. Modal 基礎樣式 (背景和定位) --- */
+.modal-overlay {
+    /* 預設隱藏，由 JS 控制 display: flex; 來顯示 */
+    display: none; 
+    
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* 半透明黑色背景 */
+    background-color: rgba(0, 0, 0, 0.5);
+    
+    /* 🌟 關鍵修正：將居中屬性保留，以配合 JS 設置 display: flex; 🌟 */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #FFF;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 600px; 
+    max-height: 80vh; 
+    /* 🌟 確保滾動條僅在內容溢出時出現 🌟 */
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- 2. Modal Header (通用) --- */
+.modal-header {
+    display: flex;
+    justify-content: space-between; /* 讓標題和關閉按鈕分開 */
+    align-items: center;
+    padding: 20px 30px 10px 30px;
+    border-bottom: 1px solid #E0E0E0;
+    position: relative;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.modal-header p {
+    font-size: 0.9rem;
+    color: #888;
+    margin: 5px 0 0 0; /* 調整 Import Modal 副標題的邊距 */
+}
+
+.close-button { /* 使用新的類別名 */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+}
+
+/* --- 3. Modal 內容區塊 (適用於 Import Modal 的 Tab 內容) --- */
+.tabs-container {
+    /* 🌟 讓這個容器可以滾動 🌟 */
+    flex-grow: 1;
+    padding: 0 30px 0 30px; 
+    overflow-y: auto;
+}
+/* Import Tabs (內容不變) */
+.import-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #EEE;
+}
+/* ... (其餘 import-schedule 相關樣式保持不變) ... */
+.import-tab {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.import-tab.active {
+    color: #3B82F6; 
+    border-bottom-color: #3B82F6;
+    font-weight: 600;
+}
+
+.tab-content {
+    padding-bottom: 20px;
+}
+
+.tab-content label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.tab-content textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: monospace;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    min-height: 120px;
+    margin-bottom: 15px;
+}
+
+
+/* 🌟 4. Add Event 表單專用樣式 🌟 */
+.modal-form {
+    /* 🌟 讓這個容器可以滾動 🌟 */
+    padding: 0 30px 20px 30px; /* 統一左右邊距，底部留空 */
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.modal-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.modal-form input[type="text"],
+.modal-form input[type="time"],
+.modal-form select,
+.modal-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #CCC;
+    border-radius: 6px;
+    box-sizing: border-box; 
+    font-size: 1em;
+}
+
+.time-group {
+    display: flex;
+    gap: 15px;
+}
+
+.time-input {
+    flex-grow: 1;
+}
+
+/* --- 5. Modal Footer (通用) --- */
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 30px;
+    border-top: 1px solid #E0E0E0;
+    background-color: #F9F9F9;
+}
+
+/* 通用按鈕樣式 (適用於 btn-primary/btn-cancel) */
+.btn-primary, .btn-cancel {
+    padding: 10px 20px;
+    border-radius: 6px; /* 稍微圓潤一點 */
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #3B82F6; /* 藍色 */
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #2563EB;
+}
+
+.btn-cancel { /* 使用 btn-cancel 替代 btn-secondary */
+    background-color: #EEE;
+    color: #333;
+    border: 1px solid #CCC;
+}
+
+.btn-cancel:hover {
+    background-color: #DDD;
+}
+
+
+/* 針對移動設備的調整，使其在小螢幕上保持可讀性 */
+@media (max-width: 768px) {
+    .schedule-grid {
+        /* 在小螢幕上，每行只顯示一個日期欄位 */
+        grid-template-columns: 1fr;
+    }
+
+    .day-column {
+        border-right: none; /* 移除垂直分隔線 */
+        border-bottom: 1px solid #e5e7eb; /* 改為水平分隔線 */
+        padding-bottom: 15px;
+        padding-right: 0;
+    }
+    
+    /* 移除最後一個欄位的水平分隔線 */
+    .schedule-grid > .day-column:last-of-type {
+        border-bottom: none;
+    }
+
+    .schedule-container {
+        padding: 15px;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    /* 調整 Modal 邊距 */
+    .modal-header, 
+    .modal-footer,
+    .tabs-container,
+    .modal-form {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
