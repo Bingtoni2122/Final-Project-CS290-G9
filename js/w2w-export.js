@@ -79,7 +79,7 @@ function transformEvents(events) {
  * NOTE: This function requires a Node.js environment due to the use of 'fs'.
  * * @param {Array<Object>} events - Array of standardized event objects.
  * @param {string} directory - The directory path (e.g., 'data').
- * @param {string} filename - The file name (e.g., 'w2w-data.json').
+ * @param {string} filename - The file name (e.g., 'data/w2w-data.json').
  */
 function exportEventsToJsonFile(events, directory, filename) {
     try {
@@ -132,5 +132,5 @@ const events = parseICS(icsTextExample);
 const simpleData = transformEvents(events);
 
 // The actual call to export the file:
-exportEventsToJsonFile(simpleData, 'data', 'w2w-data.json'); 
+exportEventsToJsonFile(simpleData, 'data', 'data/w2w-data.json'); 
 */
