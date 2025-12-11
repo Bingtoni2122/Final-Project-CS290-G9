@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/css/login.css">
+        <script src="/js/login.js"></script>
+    </head>
+    <body>
+        <div class="description">
+            <span>Student Schedule Manager</span>
+            <span>Manage your work shifts and class schedule all in one place. Import from W2W and OSU systems seamlessly.</span>
+
+            <h2>Track Your Classes</h2>
+            <span>Import your OSU class schedule and never miss a lecture</span>
+
+            <h2>Manage your workshifts</h2>
+            <span>Keep track of your W2W work schedule alongside your classes</span>
+
+            <h2>Unified Calendar View</h2>
+            <span>See everything in one place with our intuitive weekly calendar</span>
+        </div>
+
+        <div class="auth-card">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="login">Login</button>
+                <button class="tab-btn" data-tab="signup">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-tab" class="tab-content active">
+                <div class="form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Enter your credentials to access your schedule</p>
+                </div>
+                <form id="login-form">
+                    <div class="error-message" id="login-error" style="display: none;"></div>
+                    
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <input type="username" id="login-username" placeholder="Your username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Log In</button>
+                </form>
+            </div>
+            <!-- Signup Form -->
+            <div id="signup-tab" class="tab-content">
+                <div class="form-header">
+                    <h2>Create Account</h2>
+                    <p>Sign up to start managing your schedule</p>
+                </div>
+                <form id="signup-form">
+                    <div class="error-message" id="signup-error" style="display: none;"></div>
+                    
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-username">Username</label>
+                        <input type="email" id="signup-username" placeholder="Your Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" minlength="6" required>
+                        <small>Must be at least 6 characters</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
