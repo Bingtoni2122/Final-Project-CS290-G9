@@ -6,7 +6,7 @@
         <header class="modal-header">
             <h2>Add New Event</h2>
             <%# 關閉按鈕呼叫 JavaScript 函數 closeAddEventModal() %>
-            <button class="close-button" onclick="closeAddEventModal()">×</button>
+            <button class="close-button" onclick="closeAddEventModal()">x</button>
         </header>
         <form id="addEventForm" class="modal-form">
             
@@ -78,7 +78,6 @@
         const dateHelpText = document.getElementById('dateHelpText');
 
         if (eventType === 'work') {
-            // 🌟 修正: 不再控制顯示/隱藏，只控制 required 屬性 🌟
             dateInput.setAttribute('required', 'required'); 
             dateHelpText.innerHTML = 'A specific date is required for Work Shifts (*).';
         } else {
@@ -103,4 +102,50 @@
         // 確保關閉時重置日期輸入的 required 狀態（重置表單後會切回 'class'）
         toggleDateInput(); 
     }
+
+    // 確保 DOM 載入完成後再添加事件監聽器
+    document.addEventListener('DOMContentLoaded', () => {
+    // ... [原有的 toggleDateInput, openAddEventModal, closeAddEventModal 函數] ...
+    
+    // 🌟 新增：處理表單提交的邏輯 🌟
+    const addEventForm = document.getElementById('addEventForm');
+    
+    if (addEventForm) {
+        addEventForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // 阻止表單的預設提交行為
+            
+            // 獲取表單數據並轉換為 JSON 物件
+            const formData = new FormData(e.target);
+            const eventData = Object.fromEntries(formData.entries());
+
+            // 處理 Class 事件不需要 date 欄位，確保移除空值
+            if (eventData.eventType === 'class' && !eventData.date) {
+                delete eventData.date;
+            }
+
+            try {
+                const response = await fetch('/api/add-event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(result.message);
+                    closeAddEventModal();
+                    // 成功後重新整理頁面以顯示新事件
+                    window.location.reload(); 
+                } else {
+                    // 處理伺服器返回的錯誤
+                    alert('Error adding event: ' + (result.message || 'Server returned an error.'));
+                }
+                } catch (error) {
+                    console.error('Submission failed:', error);
+                    alert('An unexpected network error occurred.');
+                }
+            });
+        }
+    });
 </script>
