@@ -1,9 +1,25 @@
+const SAMPLE_USERS = [
+    { 
+        _id: 'testing_ID', // ID mock
+        username: 'bing_test', 
+        password: 'password123', // Mật khẩu chưa băm
+        name: 'Test User'
+    },
+    { 
+        _id: 'testing_ID1', // ID mock
+        username: 'song_test', 
+        password: 'testingpass123', // Mật khẩu chưa băm
+        name: 'Test User 2'
+    }
+    // Bạn có thể thêm nhiều người dùng khác ở đây
+];
+
 // server.js
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const bcrypt = require('bcrypt');
+//const bcrypt = require('bcrypt');
 require('dotenv').config()
 
 const { parseW2W, parseW2WFileSync } = require('./js/w2w-parser'); // <-- import module
@@ -54,8 +70,7 @@ run().catch(console.dir);
 
 // --- 數據加載 ---
 // ⚠️ 確保 data/w2w-data.json 和 data/classSchedule1.json 存在
-let workEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
-let classEvents = JSON.parse(fs.readFileSync('data/classSchedule1.json', 'utf8'));
+let workEvents, classEvents;
 
 
 // ------------------------------------
@@ -224,12 +239,99 @@ app.post('/upload', upload.single('icsfile'), (req, res) => {
     exportEventsToJsonFile(simpleData, 'data', 'data/w2w-data.json'); 
 });
 
+app.use(express.json());
+app.get(['/','/login'], (req, res) => {
+    // 設置 eventType 為空字串
+    req.params.eventType = '';
+    res.render('login')
+});
+
+
+const session = require('express-session');
+app.use(session({
+    secret: 'YOUR_SECRET_KEY_HERE', // Chuỗi bí mật dùng để ký (sign) session cookie
+    resave: false, // Không lưu lại session nếu không có thay đổi
+    saveUninitialized: false, // Không tạo session cho người dùng chưa đăng nhập
+    cookie: { 
+        maxAge: 1000 * 60 * 60 * 24 // 24 giờ
+    } 
+}));
+// Khai báo trước các hàm chính, vì chúng ta không dùng User Model/Bcrypt thật
+const bcrypt = { 
+    compare: (plain, hash) => plain === hash // MOCKING BCrypt compare
+};
+
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'Username and password are required.' });
+    }
+    
+    // 1. Tìm kiếm người dùng trong Dữ liệu Mẫu
+    const user = SAMPLE_USERS.find(u => u.username === username);
+
+    if (!user) {
+        // Người dùng không tồn tại
+        return res.status(401).json({ success: false, message: 'Invalid username or password.' });
+    }
+    
+    // 2. So sánh Mật khẩu (Dùng MOCK BCrypt.compare)
+    // Lưu ý: Trong thực tế, user.password sẽ là mật khẩu đã băm!
+    const passwordMatch = bcrypt.compare(password, user.password); 
+
+    if (!passwordMatch) {
+        // Mật khẩu không khớp
+        return res.status(401).json({ success: false, message: 'Invalid username or password.' });
+    }
+    
+    // 3. Tạo Session (Vẫn cần Session cho logic chuyển hướng)
+    // Lưu ID người dùng mock vào session
+    req.session.userId = user._id; 
+    
+    // 4. Phản hồi thành công
+    res.status(200).json({ 
+        success: true, 
+        message: 'Đăng nhập thành công',
+        redirectUrl: '/dashboard' // Chuyển hướng đến route Profile
+    });
+});
+function requireLogin(req, res, next) {
+    // Kiểm tra xem ID người dùng có tồn tại trong session không
+    if (req.session && req.session.userId) {
+        next(); // Đã đăng nhập -> Cho phép đi tiếp
+    } else {
+        // Chưa đăng nhập -> Chuyển hướng về trang login
+        res.redirect('/login'); 
+    }
+}
+
+app.get('/dashboard', requireLogin, async (req, res) => {    
+    const userId = req.session.userId;
+    const user = SAMPLE_USERS.find(u => u._id === userId);
+    console.log(user);
+    
+    if (!user) {
+        // Nếu user bị xóa khỏi mock data hoặc session bị lỗi
+        return res.redirect('/login');
+    }
+    
+    // 2. Render trang EJSuser
+    if (user.username == "bing_test") {
+        workEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
+        classEvents = JSON.parse(fs.readFileSync('data/classSchedule1.json', 'utf8'));
+    } else if (user.username == "song_test") {
+        workEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
+        classEvents = JSON.parse(fs.readFileSync('data/classSchedule2.json', 'utf8'));
+    }
+    handleDashboard(req, res, workEvents, classEvents);
+});
 
 // ------------------------------------
 // --- 通用 Dashboard 處理函數 ---
 // ------------------------------------
 
-function handleDashboard(req, res) {
+function handleDashboard(req, res, workEvents, classEvents) {
     // eventType 已經由下面的路由設置為 'works', 'classes', 或 ''
     const eventType = req.params.eventType || '';
 
@@ -284,69 +386,18 @@ function handleDashboard(req, res) {
 // --- 最終修正後的 Dashboard 路由 (使用獨立路由) ---
 // ------------------------------------
 
-// 1. 處理根目錄 (All Events /)
-app.get('/', (req, res) => {
-    // 設置 eventType 為空字串
-    req.params.eventType = '';
-    handleDashboard(req, res);
-});
-
 // 2. 處理 /works 
 app.get('/works', (req, res) => {
     // 設置 eventType 為 'works'
     req.params.eventType = 'works';
-    handleDashboard(req, res);
+    handleDashboard(req, res, workEvents, classEvents);
 });
 
 // 3. 處理 /classes 
 app.get('/classes', (req, res) => {
     // 設置 eventType 為 'classes'
     req.params.eventType = 'classes';
-    handleDashboard(req, res);
+    handleDashboard(req, res, workEvents, classEvents);
 });
-
-
-app.get('/login', (req, res) => {
-    res.render('login')
-});
-app.post('/api/login', async (req, res) => {
-    // 1. Data Validation
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Username and password are required.' });
-    }
-
-    try {
-        const usersCollection = db.collection('users'); 
-
-        const user = await usersCollection.findOne({ username });
-
-        if (!user) {
-            // User not found in database (Always use generic message for security)
-            return res.status(401).json({ success: false, message: 'Invalid username or password.' });
-        }
-        
-        // 3. Password Verification (SECURE BCrypt Check)
-        // bcrypt.compare() compares the plain-text password with the stored hash
-        const passwordMatch = await bcrypt.compare(password, user.passwordHash); 
-        // NOTE: 'user.passwordHash' assumes you stored the HASH under this field name 
-        // in your MongoDB collection during user creation (signup).
-
-        if (!passwordMatch) {
-            // Passwords do not match
-            return res.status(401).json({ success: false, message: 'Invalid username or password.' });
-        }
-        
-        // 4. Success!
-        // In a full application, you would set a session or send a JWT here.
-        return res.json({ success: true, message: 'Login successful.' });
-
-    } catch (error) {
-        console.error('Error during login:', error);
-        return res.status(500).json({ success: false, message: 'Internal server error during authentication.' });
-    }
-});
-
 
 app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));
