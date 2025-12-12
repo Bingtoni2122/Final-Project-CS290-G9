@@ -25,7 +25,7 @@ require('dotenv').config()
 const { parseW2W, parseW2WFileSync } = require('./js/w2w-parser'); // <-- import module
 const { transformEvents, exportEventsToJsonFile } = require('./js/w2w-export');
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: '/api/uploads/' });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,32 +41,32 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'static')));
 app.locals.basedir = app.get('views');
 
-//Connect db
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = process.env.atlas_URL;
+// //Connect db
+// const { MongoClient, ServerApiVersion } = require('mongodb');
+// const uri = process.env.atlas_URL;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
-});
+// // Create a MongoClient with a MongoClientOptions object to set the Stable API version
+// const client = new MongoClient(uri, {
+//     serverApi: {
+//         version: ServerApiVersion.v1,
+//         strict: true,
+//         deprecationErrors: true,
+//     }
+// });
 
-async function run() {
-    try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
-        // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    } finally {
-        // Ensures that the client will close when you finish/error
-        await client.close();
-    }
-}
-run().catch(console.dir);
+// async function run() {
+//     try {
+//         // Connect the client to the server	(optional starting in v4.7)
+//         await client.connect();
+//         // Send a ping to confirm a successful connection
+//         await client.db("admin").command({ ping: 1 });
+//         console.log("Pinged your deployment. You successfully connected to MongoDB!");
+//     } finally {
+//         // Ensures that the client will close when you finish/error
+//         await client.close();
+//     }
+// }
+// run().catch(console.dir);
 
 
 // ------------------------------------
@@ -176,8 +176,12 @@ function getCurrentWeekRange(today) {
 }
 
 // 使用getCurrentWeekRange來篩選事件
-function filterEvents(allGroupedEvents, workFilter, classFilter) {
-    const { startOfWeek, endOfWeek } = getCurrentWeekRange(new Date());
+function filterEvents(allGroupedEvents, workFilter, classFilter, weekOffset) {
+    const today = new Date();
+    today.setDate(today.getDate() + weekOffset * 7);
+
+    const { startOfWeek, endOfWeek } = getCurrentWeekRange(today);
+
     const filteredEventsByDay = { eventsByDay: {}, workEventCount: 0, classEventCount: 0 };
 
     for (const [day, events] of Object.entries(allGroupedEvents.eventsByDay)) {
@@ -230,9 +234,11 @@ function updateAndSaveEvent(newEvent) {
     let targetFilePath;
 
     if (newEvent.eventType === 'class') {
+        console.log(newEvent)
         targetEvents = JSON.parse(fs.readFileSync('data/classSchedule1.json', 'utf8'));
         targetFilePath = 'data/classSchedule1.json';
     } else if (newEvent.eventType === 'work') {
+        console.log(newEvent)
         targetEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
         targetFilePath = 'data/w2w-data.json';
     } else {
@@ -247,6 +253,7 @@ function updateAndSaveEvent(newEvent) {
         const [year, month, day] = newEvent.date.split('-');
         // parseInt 用來去除前導零
         eventDateString = `${parseInt(month)}/${parseInt(day)}/${year}`;
+        console.log(eventDateString);
     }
 
     // 1. 創建新的事件物件
@@ -276,6 +283,7 @@ function updateAndSaveEvent(newEvent) {
 
     // 2. 更新記憶體中的陣列
     targetEvents.push(newEntry);
+    console.log(newEntry)
 
     // 3. 寫回 JSON 檔案 (同步寫入)
     fs.writeFileSync(targetFilePath, JSON.stringify(targetEvents, null, 4), 'utf8');
@@ -302,12 +310,8 @@ app.post('/import-osu', (req, res) => {
     res.redirect('/');
 });
 
-app.get('/upload', (req, res) => res.render('upload', {
-    title: 'Upload ICS'
-}));
-
 // POST upload (multipart/form-data)
-app.post('/upload', upload.single('icsfile'), (req, res) => {
+app.post('/api/upload', upload.single('icsfile'), (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded');
 
     // đọc file tạm và parse bằng module
@@ -317,13 +321,10 @@ app.post('/upload', upload.single('icsfile'), (req, res) => {
     // xóa file temp
     try { fs.unlinkSync(req.file.path); } catch (e) { }
 
-    // render bằng EJS
-    res.render('events', {
-        title: 'Parsed Events', events
-    });
-
     const simpleData = transformEvents(events);
-    exportEventsToJsonFile(simpleData, 'data', 'data/w2w-data.json');
+    exportEventsToJsonFile(simpleData, 'data', 'w2w-data.json');
+    // // render bằng EJS
+    res.redirect('/dashboard');
 });
 
 app.use(express.json());
@@ -393,9 +394,44 @@ function requireLogin(req, res, next) {
         res.redirect('/login');
     }
 }
+app.post('/api/logout', (req, res) => {
+    // Kiểm tra xem session có tồn tại không
+    if (req.session) {
+        // Hủy session (xóa dữ liệu session khỏi server và cookie session từ trình duyệt)
+        req.session.destroy(err => {
+            if (err) {
+                console.error('Lỗi khi hủy session:', err);
+                return res.status(500).json({ success: false, message: 'Could not log out.' });
+            }
+            // Trả về 200 OK cho Client
+            res.status(200).json({ success: true, message: 'Logged out successfully.' });
+        });
+    } else {
+        // Nếu không có session, coi như đã đăng xuất
+        res.status(200).json({ success: true, message: 'No active session.' });
+    }
+});
 
+var glbWorkEvents, glbClassEvents, glbUsername, glbToday = new Date();
 app.get('/dashboard', requireLogin, async (req, res) => {
-    handleDashboard(req, res);
+    const userId = req.session.userId;
+    const user = SAMPLE_USERS.find(u => u._id === userId);
+    glbUsername = user.username
+    
+    if (!user) {
+        // Nếu user bị xóa khỏi mock data hoặc session bị lỗi
+        return res.redirect('/login');
+    }
+    
+    // 2. Render trang EJSuser
+    if (user.username == "bing_test") {
+        glbWorkEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
+        glbClassEvents = JSON.parse(fs.readFileSync('data/classSchedule1.json', 'utf8'));
+    } else if (user.username == "song_test") {
+        glbWorkEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
+        glbClassEvents = JSON.parse(fs.readFileSync('data/classSchedule2.json', 'utf8'));
+    }
+    handleDashboard(req, res, glbWorkEvents, glbClassEvents, glbUsername, glbToday);
 });
 
 // ------------------------------------
@@ -433,17 +469,8 @@ app.post('/api/add-event', (req, res) => {
 // --- 通用 Dashboard 處理函數 ---
 // ------------------------------------
 
-function handleDashboard(req, res, workEvents, classEvents) {
-    const userId = req.session.userId;
-    const userName = req.session.username;
-
-    if (userName == "bing_test") {
-        workEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
-        classEvents = JSON.parse(fs.readFileSync('data/classSchedule1.json', 'utf8'));
-    } else if (userName == "song_test") {
-        workEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
-        classEvents = JSON.parse(fs.readFileSync('data/classSchedule2.json', 'utf8'));
-    }
+function handleDashboard(req, res, workEvents, classEvents, username, today) {
+    const weekOffset = parseInt(req.query.weekOffset || '0', 10);
 
     // eventType 已經由下面的路由設置為 'works', 'classes', 或 ''
     const eventType = req.params.eventType || '';
@@ -453,10 +480,10 @@ function handleDashboard(req, res, workEvents, classEvents) {
 
     // 2. 計算固定的 Tab 顯示總數 (不論在哪個頁面都使用這些數值) 
     //    a. 計算 Work Shifts 總數 (固定為本週)
-    const totalWorkShifts = filterEvents(allEventsStructure, true, false).workEventCount;
+    const totalWorkShifts = filterEvents(allEventsStructure, true, false, weekOffset).workEventCount;
 
     //    b. 計算 Classes 總數 (固定為所有)
-    const totalClasses = filterEvents(allEventsStructure, false, true).classEventCount;
+    const totalClasses = filterEvents(allEventsStructure, false, true, weekOffset).classEventCount;
 
     // 3. 確定當前頁面的內容篩選邏輯 (Content Filtering)
     let workFilter = false;
@@ -479,8 +506,11 @@ function handleDashboard(req, res, workEvents, classEvents) {
     }
 
     // 4. 應用內容篩選，獲取要顯示的卡片
-    const filteredContent = filterEvents(allEventsStructure, workFilter, classFilter);
+    const filteredContent = filterEvents(allEventsStructure, workFilter, classFilter, weekOffset);
 
+    today.setDate(today.getDate() + weekOffset * 7);
+
+    const { startOfWeek, endOfWeek } = getCurrentWeekRange(today);
     // 5. 渲染視圖
     res.render('dashboard', {
         title: 'Student Schedule Manager',
@@ -490,7 +520,11 @@ function handleDashboard(req, res, workEvents, classEvents) {
         // 傳遞固定的 Tab 標籤計數
         workEventCount: totalWorkShifts,
         classEventCount: totalClasses,
-        allEventCount: totalWorkShifts + totalClasses
+        allEventCount: totalWorkShifts + totalClasses,
+        username: req.session.username,
+        weekOffset: weekOffset,
+        currentWeekStart: startOfWeek,
+        currentWeekEnd: endOfWeek
     });
 }
 
@@ -499,25 +533,36 @@ function handleDashboard(req, res, workEvents, classEvents) {
 // --- 最終修正後的 Dashboard 路由 ---
 // ------------------------------------
 
-// 1. 處理根目錄 (All Events /)
-app.get('/', (req, res) => {
-    // 設置 eventType 為空字串
-    req.params.eventType = '';
-    handleDashboard(req, res);
-});
-
 // 2. 處理 /works 
 app.get('/works', (req, res) => {
     // 設置 eventType 為 'works'
     req.params.eventType = 'works';
-    handleDashboard(req, res);
+    handleDashboard(req, res, glbWorkEvents, glbClassEvents, glbUsername, glbToday);
+});
+app.get('/works/:targetDate', requireLogin, (req, res) => {
+    req.params.eventType = 'works';
+    const today = new Date(req.params.targetDate); 
+    handleDashboard(req, res, glbWorkEvents, glbClassEvents, glbUsername, today);
 });
 
 // 3. 處理 /classes 
 app.get('/classes', (req, res) => {
     // 設置 eventType 為 'classes'
     req.params.eventType = 'classes';
-    handleDashboard(req, res);
+    handleDashboard(req, res, glbWorkEvents, glbClassEvents, glbUsername, glbToday);
+});
+app.get('/classes/:targetDate', requireLogin, (req, res) => {
+    req.params.eventType = 'classes';
+    const today = new Date(req.params.targetDate); 
+    handleDashboard(req, res, glbWorkEvents, glbClassEvents, glbUsername, today);
+});
+
+app.get('/dashboard/:targetDate', requireLogin, (req, res) => {
+    req.params.eventType = 'dashboard';
+    // Đảm bảo chuyển đổi chuỗi ngày thành đối tượng Date
+    const today = new Date(req.params.targetDate); 
+    console.log(today)
+    handleDashboard(req, res, glbWorkEvents, glbClassEvents, glbUsername, today);
 });
 
 app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));

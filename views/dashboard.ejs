@@ -6,6 +6,7 @@
     <title>Student Schedule Manager</title>
     <link rel="stylesheet" href="/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="/js/login.js"></script>
     <style>
         /* Ensure placeholder has a sensible min-height without injecting styles from EJS */
         .placeholder-min { min-height: 150px; }
@@ -18,10 +19,26 @@
         <header class="schedule-header">
             <h1>Student Schedule</h1>
             <p class="subtitle">Combine your work schedule from W2W and class timetable from OSU in one place</p>
+            <div class="user-section">
+                <div class="user-info">
+                    <p class="user-name" id="user-name">Hi, <%= username %></p>
+                </div>
+                <button class="btn btn-outline header-logout-btn" onclick="handleLogout()">
+                    <span>Logout</span>
+                </button>
+            </div>
+            <h3 class="week-range">
+                    <%= currentWeekStart %> - <%= currentWeekEnd %>
+            </h3>
+            <h1>Student Schedule</h1>
             <div class="actions">
                 <%# 確保按鈕調用正確的函數 %>
                 <button class="add-event" onclick="openAddEventModal()"><i class="icon">+</i> Add Event</button>
-                <!-- <button class="import-schedule" onclick="openImportModal()"><i class="icon">↑</i> Import Schedule</button> -->
+                <button class="import-schedule" onclick="openImportModal()"><i class="icon">↑</i> Import Schedule</button>
+                <div class="week-navigation">
+                    <a href="/dashboard?weekOffset=<%= weekOffset - 1 %>" class ="week-navi">&lt; Previous Week</a>
+                    <a href="/dashboard?weekOffset=<%= weekOffset + 1 %>" class ="week-navi">Next Week &gt;</a>
+                </div>
             </div>
             <div class="tabs" id="filterTabs">
                 <a href="/dashboard" class="tab <%= eventType === '' ? 'active' : '' %>" data-type="all">
@@ -33,6 +50,7 @@
                 <a href="/classes" class="tab <%= eventType === 'classes' ? 'active' : '' %>" data-type="class">
                     Classes (<%= classEventCount %>)
                 </a>
+                
             </div>
         </header>
         <main class="schedule-content">
@@ -72,10 +90,39 @@
                     <% }); %>
                 </div>
             <% } %>
-
+            
         </main>
 
     </div>
+    <div id="importModal" class="modal-overlay"> 
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Import Work Schedule (W2W)</h2>
+            <button class="close-button" onclick="closeImportModal()">&times;</button>
+        </div>
+        
+        <div class="tabs-container">
+            <div class="tab-content active">
+                <form action="/api/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <p>Select your iCalendar (.ics) file exported from When2Work.</p>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="ics-file">Choose File (.ics):</label>
+                        <input type="file" name="icsfile" id="ics-file" accept=".ics" required>
+                    </div>
+                    
+                    <div class="modal-footer" style="padding: 0; border-top: none; background: none;">
+                        <button type="button" class="btn-cancel" onclick="closeImportModal()">Cancel</button>
+                        <button type="submit" class="btn-primary" onclick="closeImportModal()">
+                            Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
 
     <%# 引入 import_schedule 模板 (Modal) - 確保其 ID 為 'importModal' %>
     <%- include('import_schedule') %>
@@ -105,6 +152,14 @@
                 toggleDateInput();
             }
         }
+        function openImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
 
         /*
         // --- 2. Import Modal 控制函數 ---

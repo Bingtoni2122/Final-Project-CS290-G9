@@ -14,7 +14,7 @@ function switchTab(tabName) {
 
 async function handleLogin(event) {
     // 1. Ngăn chặn hành vi tải lại trang mặc định của form
-    event.preventDefault();
+    event.preventDefault(); 
 
     // Lấy các phần tử HTML để thu thập dữ liệu và hiển thị lỗi
     const loginForm = document.getElementById('login-form');
@@ -25,7 +25,7 @@ async function handleLogin(event) {
     // Xóa lỗi cũ
     errorDisplay.style.display = 'none';
     errorDisplay.textContent = '';
-
+    
     // 2. Thu thập dữ liệu
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
@@ -38,28 +38,28 @@ async function handleLogin(event) {
 
     try {
         // 3. Gửi Yêu cầu POST (API Call) đến Server Express
-
+        
         // **Đây là phần handle API login từ client:**
-        const response = await fetch('/api/login', {
+        const response = await fetch('/api/login', { 
             method: 'POST',
             // Chỉ định nội dung gửi đi là JSON
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' }, 
             // Chuyển dữ liệu thành chuỗi JSON
-            body: JSON.stringify({ username: username, password: password })
+            body: JSON.stringify({ username: username, password: password }) 
         });
 
         // 4. Xử lý Phản hồi từ Server
-
+        
         // Server thường trả về JSON, đọc phản hồi
-        const data = await response.json();
+        const data = await response.json(); 
 
         if (response.ok) { // Kiểm tra mã trạng thái HTTP (200-299)
             // Đăng nhập thành công!
             console.log('Đăng nhập thành công. Chuyển hướng...');
-
+            
             // Server đã tạo Session Cookie, bây giờ chuyển hướng người dùng
-            window.location.href = data.redirectUrl || '/dashboard';
-
+            window.location.href = data.redirectUrl || '/dashboard'; 
+            
         } else {
             // Đăng nhập thất bại (Server trả về 401 Unauthorized hoặc 400 Bad Request)
             const errorMessage = data.message || 'Lỗi đăng nhập không xác định.';
@@ -73,11 +73,35 @@ async function handleLogin(event) {
         errorDisplay.style.display = 'block';
     }
 }
+// login.js (Thêm/Sửa đổi hàm này)
 
-function initializeAuth() {
+async function handleLogout() {
+    try {
+        const response = await fetch('/api/logout', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+            // Không cần body vì không gửi dữ liệu
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Hủy session thành công, chuyển hướng về trang đăng nhập
+            window.location.href = '/login'; 
+        } else {
+            console.error('Logout failed:', data.message);
+            alert('Đăng xuất thất bại. Vui lòng thử lại.');
+        }
+    } catch (error) {
+        console.error('Lỗi kết nối khi đăng xuất:', error);
+        alert('Lỗi kết nối máy chủ.');
+    }
+}
+
+function initializeAuth(){
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             console.log("Tab click")
             const tabName = this.getAttribute('data-tab');
             switchTab(tabName);
@@ -96,10 +120,12 @@ function initializeAuth() {
 
     // Logout button
     const logoutBtn = document.getElementById('logout-btn');
-    //logoutBtn.addEventListener('click', handleLogout);
+    if (logoutBtn) { // Kiểm tra để tránh lỗi nếu nút không có trên trang
+        logoutBtn.addEventListener('click', handleLogout);
+    }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {    
     // Đảm bảo tab switching cũng được khởi tạo (từ câu trả lời trước)
-    initializeAuth();
+    initializeAuth(); 
 });

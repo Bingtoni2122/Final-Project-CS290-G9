@@ -30,7 +30,7 @@ function transformEvents(events) {
                 // Use en-US locale for consistent formatting (MM/DD/YYYY)
                 const locale = 'en-US';
                 // Apply Pacific Time Zone (Oregon/Los Angeles)
-                const timeZone = 'America/Los_Angeles'; 
+                const timeZone = 'Asia/Ho_Chi_Minh'; 
                 
                 const dateStr = parsedObj.date.toLocaleDateString(locale, { ...dateOptions, timeZone });
                 const timeStr = parsedObj.date.toLocaleTimeString(locale, { ...timeOptions, timeZone });
