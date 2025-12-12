@@ -3,12 +3,12 @@
     <span class="tag work-tag">Work</span>
     <p class="time">
         <i class="icon">⏰</i> 
-        <%= event.time_start_display %> - <%= event.time_end_display %>
+        <%= event.time_start %> - <%= event.time_end %>
     </p>
     <p class="details">
         <%= event.description.split('\n')[0] %>
-        <% if (event.description.split('\n').length > 1) { %>
+        <!-- <% if (event.description.split('\n').length > 1) { %>
             ...
-        <% } %>
+        <% } %> -->
     </p>
 </div>

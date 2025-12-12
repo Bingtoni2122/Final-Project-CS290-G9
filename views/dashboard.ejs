@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,15 +43,12 @@
                     <p>Try importing a schedule or adding a new event.</p>
                 </div>
             <% } else { %>
-                <%# 🌟 修正點 1: 使用 CSS 中定義的 .schedule-grid 🌟 %>
                 <div class="schedule-grid">
                     
-                    <%# 🌟 修正點 2: 修改日期順序，從 Monday 開始 🌟 %>
                     <% const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; %>
                     
                     <% daysOfWeek.forEach(day => { %>
                         <div class="day-column">
-                            <%# 🌟 修正點 3: 使用 CSS 中定義的 .day-title 🌟 %>
                             <h2 class="day-title"><%= day %></h2>
                             <% if (eventsByDay[day] && eventsByDay[day].length > 0) { %>
                                 <div class="event-list"> 
@@ -120,7 +117,7 @@
         }
 
 
-        // --- 3. Add Event Form 提交處理 (🌟 新增這段邏輯 🌟) ---
+        // --- 3. Add Event Form 提交處理 ---
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('addEventForm');
 

@@ -102,6 +102,23 @@ function formatW2WTime(time24) {
     return `${displayHours}:${displayMinutes} ${ampm}`;
 }
 
+/**
+ * 將 HH:MM 格式的時間字串轉換為從午夜開始的總分鐘數。
+ * @param {string} timeString - 24小時制的時間字串 (e.g., "8:00", "13:30")。
+ * @returns {number} 總分鐘數，或 -1 (表示時間無效/缺失)。
+ */
+// let every event card  arrange in order of time
+function timeToMinutes(timeString) {
+    if (!timeString) return -1;
+    // 將時間字串分解為小時和分鐘，並轉換為數字
+    const [hours, minutes] = timeString.split(':').map(Number);
+    
+    // 檢查轉換結果是否為有效數字
+    if (isNaN(hours) || isNaN(minutes)) return -1; 
+    
+    return hours * 60 + minutes;
+}
+
 function getDayOfWeek(dateString) {
     if (!dateString) return 'Unknown';
     const [month, day, year] = dateString.split('/').map(Number);
@@ -113,26 +130,77 @@ function getDayOfWeek(dateString) {
     return dayNames[date.getDay()];
 }
 
+// function prepareEventsForEJS(workData, classData) {
+//     const allEvents = [];
+
+//     // 修正: 確保 workData 存在，否則使用空陣列 []
+//     (workData || []).forEach(work => {
+//         // work.time_start_display = formatW2WTime(work.time_start);
+//         // work.time_end_display = formatW2WTime(work.time_end);
+//         work.type = 'work';
+//         allEvents.push(work);
+//     });
+
+//     // 修正: 確保 classData 存在，否則使用空陣列 []
+//     (classData || []).forEach(classEvent => {
+//         classEvent.type = 'class';
+//         allEvents.push(classEvent);
+//     });
+
+//     const eventsByDay = {};
+//     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+//     allEvents.forEach(event => {
+//         const day = getDayOfWeek(event.date);
+//         if (!eventsByDay[day]) {
+//             eventsByDay[day] = [];
+//         }
+//         eventsByDay[day].push(event);
+//     });
+
+//     // ----------------------------------------------------
+//     // 修正 1：防止 time_start 為 undefined 導致崩潰 (L130)
+//     // ----------------------------------------------------
+//     for (const day of daysOfWeek) {
+//         if (eventsByDay[day]) {
+//             eventsByDay[day].sort((a, b) => {
+//                 const timeA = a.time_start;
+//                 const timeB = b.time_start;
+
+//                 if (!timeA && !timeB) return 0;  // 兩者皆無時間
+//                 if (!timeA) return 1;           // a 無時間，排在後面
+//                 if (!timeB) return -1;          // b 無時間，排在前面
+
+//                 // 只有兩者都有時間字串時才進行比較
+//                 return timeA.localeCompare(timeB);
+//             });
+//         }
+//     }
+//     return { eventsByDay, workEventCount: (workData || []).length, classEventCount: (classData || []).length };
+// }
+
 function prepareEventsForEJS(workData, classData) {
     const allEvents = [];
-
-    // 修正: 確保 workData 存在，否則使用空陣列 []
-    (workData || []).forEach(work => {
+    
+    // 1. 處理 Work Data (新增 12 小時制轉換)
+    (workData || []).forEach(work => { 
         work.time_start_display = formatW2WTime(work.time_start);
         work.time_end_display = formatW2WTime(work.time_end);
-        work.type = 'work';
+        work.type = 'work'; 
         allEvents.push(work);
     });
 
-    // 修正: 確保 classData 存在，否則使用空陣列 []
-    (classData || []).forEach(classEvent => {
-        classEvent.type = 'class';
+    // 2. 處理 Class Data (新增 12 小時制轉換)
+    (classData || []).forEach(classEvent => { 
+        classEvent.time_start_display = formatW2WTime(classEvent.time_start);
+        classEvent.time_end_display = formatW2WTime(classEvent.time_end);
+        classEvent.type = 'class'; 
         allEvents.push(classEvent);
     });
 
     const eventsByDay = {};
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
+    
     allEvents.forEach(event => {
         const day = getDayOfWeek(event.date);
         if (!eventsByDay[day]) {
@@ -140,25 +208,27 @@ function prepareEventsForEJS(workData, classData) {
         }
         eventsByDay[day].push(event);
     });
-
+    
     // ----------------------------------------------------
-    // 修正 1：防止 time_start 為 undefined 導致崩潰 (L130)
+    // 🌟 修正：使用 timeToMinutes 進行精確的數值排序 🌟
     // ----------------------------------------------------
     for (const day of daysOfWeek) {
         if (eventsByDay[day]) {
             eventsByDay[day].sort((a, b) => {
-                const timeA = a.time_start;
-                const timeB = b.time_start;
-
-                if (!timeA && !timeB) return 0;  // 兩者皆無時間
-                if (!timeA) return 1;           // a 無時間，排在後面
-                if (!timeB) return -1;          // b 無時間，排在前面
-
-                // 只有兩者都有時間字串時才進行比較
-                return timeA.localeCompare(timeB);
+                const timeA_minutes = timeToMinutes(a.time_start);
+                const timeB_minutes = timeToMinutes(b.time_start);
+                
+                // 處理時間缺失的情況 (-1 代表缺失)
+                if (timeA_minutes === -1 && timeB_minutes === -1) return 0; 
+                if (timeA_minutes === -1) return 1;                // a 無時間，排在後面
+                if (timeB_minutes === -1) return -1;                // b 無時間，排在前面
+                
+                // 數值比較，確保按時間順序 (分鐘數)
+                return timeA_minutes - timeB_minutes;
             });
         }
     }
+    
     return { eventsByDay, workEventCount: (workData || []).length, classEventCount: (classData || []).length };
 }
 
