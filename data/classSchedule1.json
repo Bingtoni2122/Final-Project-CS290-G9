@@ -5,6 +5,8 @@
     "time_start": "8:00",
     "time_end": "9:50",
     "status": "confirmed",
+    "location": "ILLC 355",
+    "professor": "Josh Lane",
     "Description": "Tech COMM Intl Class"
   },
   {
@@ -13,6 +15,8 @@
     "time_start": "13:00",
     "time_end": "13:50",
     "status": "confirmed",
+    "location": "Furman Hall 102",
+    "professor": "Julianne Coffman",
     "Description": "Data Structure"
   },
   {
@@ -21,6 +25,8 @@
     "time_start": "14:00",
     "time_end": "15:50",
     "status": "confirmed",
+    "location": "Withycombe Hall 155",
+    "professor": "Rob Hess",
     "Description": "Web Development"
   },
   {
@@ -29,6 +35,8 @@
     "time_start": "14:00",
     "time_end": "16:50",
     "status": "confirmed",
+    "location": "ILLC 444",
+    "professor": "Carrie Pilmer",
     "Description": "Writing/Research for GRAD"
   },
   {
@@ -37,6 +45,8 @@
     "time_start": "8:00",
     "time_end": "9:50",
     "status": "confirmed",
+    "location": "ILLC 355",
+    "professor": "Josh Lane",
     "Description": "Tech COMM Intl Class"
   },
   {
@@ -45,6 +55,8 @@
     "time_start": "13:00",
     "time_end": "13:50",
     "status": "confirmed",
+    "location": "Furman Hall 102",
+    "professor": "Julianne Coffman",
     "Description": "Data Structure"
   },
   {
@@ -53,6 +65,8 @@
     "time_start": "14:00",
     "time_end": "15:50",
     "status": "confirmed",
+    "location": "Withycombe Hall 155",
+    "professor": "Rob Hess",
     "Description": "Web Development"
   },
   {
@@ -61,6 +75,8 @@
     "time_start": "16:00",
     "time_end": "17:50",
     "status": "confirmed",
+    "location": "Furman Hall 102",
+    "professor": "Julianne Coffman",
     "Description": "Data Structure Recitation Activity"
   },
   {
@@ -69,6 +85,8 @@
     "time_start": "14:00",
     "time_end": "16:50",
     "status": "confirmed",
+    "location": "ILLC 444",
+    "professor": "Carrie Pilmer",
     "Description": "Writing/Research for GRAD"
   },
   {
@@ -77,6 +95,8 @@
     "time_start": "8:00",
     "time_end": "9:50",
     "status": "confirmed",
+    "location": "ILLC 355",
+    "professor": "Josh Lane",
     "Description": "Tech COMM Intl Class"
   },
   {
@@ -85,6 +105,8 @@
     "time_start": "13:00",
     "time_end": "13:50",
     "status": "confirmed",
+    "location": "Furman Hall 102",
+    "professor": "Julianne Coffman",
     "Description": "Data Structure"
   }
 ]
