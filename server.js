@@ -69,12 +69,6 @@ async function run() {
 run().catch(console.dir);
 
 
-// --- 數據加載 ---
-// ⚠️ 確保 data/w2w-data.json 和 data/classSchedule1.json 存在
-// let workEvents = JSON.parse(fs.readFileSync('data/w2w-data.json', 'utf8'));
-// let classEvents = JSON.parse(fs.readFileSync('data/classSchedule1.json', 'utf8'));
-
-
 // ------------------------------------
 // --- 輔助函數 ---
 // ------------------------------------
