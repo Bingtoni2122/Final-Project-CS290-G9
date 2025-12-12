@@ -12,38 +12,33 @@
             
             <div class="form-group">
                 <label for="eventType">Event Type *</label>
-                <select id="eventType" name="eventType" required>
+                <select id="eventType" name="eventType" required onchange="toggleDateInput()">
                     <option value="class">Class</option>
                     <option value="work">Work Shift</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="title">Title *</label>
-                <input type="text" id="title" name="title" placeholder="Course name or Shift description" required>
+                <label for="summary">Summary *</label>
+                <input type="text" id="summary" name="summary" placeholder="Course name or Shift description" required>
+            </div>
+          
+            <%# 🌟 修正: 移除 style="display: none;" 以確保欄位始終顯示 🌟 %>
+            <div class="form-group" id="dateInputGroup">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date">
+                <%# 新增提示文字，透過 JS 根據 Event Type 更新內容 %>
+                <small id="dateHelpText">Class events use recurring logic; a date is optional. Work Shifts require a specific date.</small>
             </div>
             
-            <div class="form-group">
-                <label for="dayOfWeek">Day of Week *</label>
-                <select id="dayOfWeek" name="dayOfWeek" required>
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                </select>
-            </div>
-
             <div class="form-group time-group">
                 <div class="time-input">
-                    <label for="startTime">Start Time *</label>
-                    <input type="time" id="startTime" name="startTime" required>
+                    <label for="time_start">Start Time *</label>
+                    <input type="time" id="time_start" name="time_start" required>
                 </div>
                 <div class="time-input">
-                    <label for="endTime">End Time *</label>
-                    <input type="time" id="endTime" name="endTime" required>
+                    <label for="time_end">End Time *</label>
+                    <input type="time" id="time_end" name="time_end" required>
                 </div>
             </div>
 
@@ -58,8 +53,8 @@
             </div>
 
             <div class="form-group">
-                <label for="notes">Notes</label>
-                <textarea id="notes" name="notes" rows="3" placeholder="Additional notes or details"></textarea>
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" placeholder="Additional notes or details"></textarea>
             </div>
 
             <div class="modal-footer">
@@ -69,3 +64,43 @@
         </form>
     </div>
 </div>
+
+<%# 🌟 修正後的 JavaScript 函數 🌟 %>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 確保在頁面載入時執行一次，設置初始的 required 狀態 (預設 'class' 不需要 required)
+        toggleDateInput(); 
+    });
+
+    function toggleDateInput() {
+        const eventType = document.getElementById('eventType').value;
+        const dateInput = document.getElementById('date');
+        const dateHelpText = document.getElementById('dateHelpText');
+
+        if (eventType === 'work') {
+            // 🌟 修正: 不再控制顯示/隱藏，只控制 required 屬性 🌟
+            dateInput.setAttribute('required', 'required'); 
+            dateHelpText.innerHTML = 'A specific date is required for Work Shifts (*).';
+        } else {
+            // 🌟 修正: 不再控制顯示/隱藏，只控制 required 屬性 🌟
+            dateInput.removeAttribute('required'); 
+            dateHelpText.innerHTML = 'For Class events, the date is optional (uses recurring logic).';
+            // 清空日期值，避免提交錯誤的特定日期數據給 Class 
+            dateInput.value = ''; 
+        }
+    }
+    
+    // 模態框控制函數
+    function openAddEventModal() {
+        document.getElementById('addEventModal').style.display = 'flex';
+        // 確保開啟時根據當前選中值設置正確的 required 狀態
+        toggleDateInput(); 
+    }
+
+    function closeAddEventModal() {
+        document.getElementById('addEventModal').style.display = 'none';
+        document.getElementById('addEventForm').reset();
+        // 確保關閉時重置日期輸入的 required 狀態（重置表單後會切回 'class'）
+        toggleDateInput(); 
+    }
+</script>
