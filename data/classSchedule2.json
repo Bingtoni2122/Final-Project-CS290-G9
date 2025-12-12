@@ -5,6 +5,8 @@
     "time_start": "12:00",
     "time_end": "13:50",
     "status": "confirmed",
+    "location": "ILLC 544",
+    "professor": "Rochelle King",
     "Description": "Profess INTL Grad Writing"
   },
   {
@@ -13,6 +15,8 @@
     "time_start": "10:00",
     "time_end": "11:20",
     "status": "confirmed",
+    "location": "ILLC 345",
+    "professor": "Richard Hahn II",
     "Description": "Strategy for Grad Success"
   },
   {
@@ -21,6 +25,8 @@
     "time_start": "14:00",
     "time_end": "15:20",
     "status": "confirmed",
+    "location": "LINC 210",
+    "professor": "Bella Bose",
     "Description": "Intro to Theory of Computation"
   },
   {
@@ -29,6 +35,8 @@
     "time_start": "16:00",
     "time_end": "17:50",
     "status": "confirmed",
+    "location": "KEC 1001",
+    "professor": "Arash Termehchy",
     "Description": "Database Management System"
   },
   {
@@ -37,6 +45,8 @@
     "time_start": "12:00",
     "time_end": "13:50",
     "status": "confirmed",
+    "location": "ILLC 544",
+    "professor": "Rochelle King",
     "Description": "Profess INTL Grad Writing"
   },
   {
@@ -45,6 +55,8 @@
     "time_start": "10:00",
     "time_end": "11:20",
     "status": "confirmed",
+    "location": "ILLC 345",
+    "professor": "Richard Hahn II",
     "Description": "Strategy for Grad Success"
   },
   {
@@ -53,6 +65,8 @@
     "time_start": "14:00",
     "time_end": "15:20",
     "status": "confirmed",
+    "location": "LINC 210",
+    "professor": "Bella Bose",
     "Description": "Intro to Theory of Computation"
   },
   {
@@ -61,6 +75,8 @@
     "time_start": "16:00",
     "time_end": "17:50",
     "status": "confirmed",
+    "location": "KEC 1001",
+    "professor": "Arash Termehchy",
     "Description": "Database Management System"
   },
   {
@@ -69,6 +85,8 @@
     "time_start": "12:00",
     "time_end": "13:50",
     "status": "confirmed",
+    "location": "ILLC 544",
+    "professor": "Rochelle King",
     "Description": "Profess INTL Grad Writing"
   }
 ]
