@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Schedule Manager</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         /* Ensure placeholder has a sensible min-height without injecting styles from EJS */
@@ -19,103 +19,147 @@
             <h1>Student Schedule</h1>
             <p class="subtitle">Combine your work schedule from W2W and class timetable from OSU in one place</p>
             <div class="actions">
-                <%# 🌟 修改 1: 將 Add Event 按鈕直接綁定到 JS 函數 🌟 %>
+                <%# 確保按鈕調用正確的函數 %>
                 <button class="add-event" onclick="openAddEventModal()"><i class="icon">+</i> Add Event</button>
-                <button class="import-schedule" onclick="openImportModal()"><i class="icon">↑</i> Import Schedule</button>
+                <!-- <button class="import-schedule" onclick="openImportModal()"><i class="icon">↑</i> Import Schedule</button> -->
             </div>
             <div class="tabs" id="filterTabs">
-                <a href="/" class="tab <%= eventType === '' ? 'active' : '' %>" data-type="all">
+                <a href="/dashboard" class="tab <%= eventType === '' ? 'active' : '' %>" data-type="all">
                     All Events (<%= allEventCount %>)
                 </a>
-                
                 <a href="/works" class="tab <%= eventType === 'works' ? 'active' : '' %>" data-type="work">
                     Work Shifts (<%= workEventCount %>)
                 </a>
-                
                 <a href="/classes" class="tab <%= eventType === 'classes' ? 'active' : '' %>" data-type="class">
                     Classes (<%= classEventCount %>)
                 </a>
             </div>
         </header>
-
-        <div class="schedule-grid">
-            <% 
-                const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            %>
-
-            <% daysOfWeek.forEach(day => { %>
-                <div class="day-column">
-                    <h2 class="day-title"><%= day %></h2>
-
-                    <% 
-                        const dayEvents = eventsByDay[day] || [];
-                    %>
-
-                        <% if (dayEvents.length === 0) { %>
-                            <%# 🌟 確保使用 placeholder-min 類別來設定最小高度 🌟 %>
-                            <div class="placeholder-card placeholder-min">
-                                <p class="no-events-text">No schedule</p>
-                            </div>
-                    <% } else { %>
-                        <% dayEvents.forEach(event => { %>
-                            <% if (event.type === 'work') { %>
-                                <%- include('work_event_card', { event: event }) %>
-                            <% } else if (event.type === 'class') { %>
-                                <%- include('class_event_card', { event: event }) %>
-                            <% } %>
-                        <% }); %>
-                    <% } %>
+        <main class="schedule-content">
+            <%# 核心排程內容 %>
+            <% if (Object.keys(eventsByDay).length === 0) { %>
+                <div class="placeholder placeholder-min">
+                    <h2>No Events Found</h2>
+                    <p>Try importing a schedule or adding a new event.</p>
                 </div>
-            <% }); %>
+            <% } else { %>
+                <%# 🌟 修正點 1: 使用 CSS 中定義的 .schedule-grid 🌟 %>
+                <div class="schedule-grid">
+                    
+                    <%# 🌟 修正點 2: 修改日期順序，從 Monday 開始 🌟 %>
+                    <% const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; %>
+                    
+                    <% daysOfWeek.forEach(day => { %>
+                        <div class="day-column">
+                            <%# 🌟 修正點 3: 使用 CSS 中定義的 .day-title 🌟 %>
+                            <h2 class="day-title"><%= day %></h2>
+                            <% if (eventsByDay[day] && eventsByDay[day].length > 0) { %>
+                                <div class="event-list"> 
+                                    <% eventsByDay[day].forEach(event => { %>
+                                        <% if (event.type === 'work') { %>
+                                            <%- include('work_event_card', { event: event }) %>
+                                        <% } else if (event.type === 'class') { %>
+                                            <%- include('class_event_card', { event: event }) %>
+                                        <% } %>
+                                    <% }); %>
+                                </div>
+                            <% } else { %>
+                                <div class="placeholder-card placeholder-min">
+                                    <span class="no-events-text">Free day.</span>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
 
-        </div>
+        </main>
 
     </div>
 
-    <%# 引入 import_schedule 模板 (Modal) %>
+    <%# 引入 import_schedule 模板 (Modal) - 確保其 ID 為 'importModal' %>
     <%- include('import_schedule') %>
 
-    <%# 🌟 修改 2: 引入新的 add_event 模板 (Modal) 🌟 %>
+    <%# 引入 add_event 模板 (Modal) - 確保其 ID 為 'addEventModal' %>
     <%- include('add_event') %>
 
-    <%# 🌟 修改 3: 新增 JavaScript 邏輯 🌟 %>
     <script>
-        // --- Add Event Modal 控制函數 ---
         
+        // --- 1. Add Event Modal 控制函數 ---
+        
+        // 開啟 Add Event Modal (由按鈕調用)
         function openAddEventModal() {
             document.getElementById('addEventModal').style.display = 'flex';
         }
 
+        // 關閉 Add Event Modal (由 Modal 內的按鈕和 JS 調用)
         function closeAddEventModal() {
             document.getElementById('addEventModal').style.display = 'none';
-            // 可選：重置表單
+            // 確保表單重置，這會清除輸入欄位
             document.getElementById('addEventForm').reset();
+            
+            // 由於 toggleDateInput() 函數在 add_event.ejs 中定義，
+            // 這裡可以選擇性地呼叫它來確保日期欄位被正確隱藏。
+            // (假設 add_event.ejs 中的 <script> 已經在頁面中執行)
+            if (typeof toggleDateInput === 'function') {
+                toggleDateInput();
+            }
         }
 
-        // --- Import Modal 控制函數 (假設您在 import_schedule.ejs 中使用 importModal) ---
-        // (保持與您的 openImportModal() 相符的邏輯，這裡提供一個範例)
+        /*
+        // --- 2. Import Modal 控制函數 ---
+        // 假設 import_schedule.ejs 中的 Modal ID 為 'importModal'
+        
+        // 開啟 Import Modal (由按鈕調用)
         function openImportModal() {
             document.getElementById('importModal').style.display = 'flex';
-            // 預設選擇 W2W Tab (假設 tab 的 id 是 'w2w-tab' 和 'osu-tab')
-            // switchImportTab('w2w'); 
         }
 
         function closeImportModal() {
             document.getElementById('importModal').style.display = 'none';
         }
 
-        // --- 表單提交邏輯 ---
-        document.getElementById('addEventForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            // 實際應該是將數據發送到後端 server.js 的 /add-event 路由
-            console.log('Submitting new event data...');
-            
-            // 假設提交成功，關閉模態框
-            closeAddEventModal();
-            // 在實際應用中，您會在這裡發送 AJAX/Fetch 請求
-            // window.location.reload(); 
+
+        // --- 3. Add Event Form 提交處理 (🌟 新增這段邏輯 🌟) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('addEventForm');
+
+            if (form) {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault(); // 阻止頁面重新載入
+
+                    // 收集表單數據
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+
+                    try {
+                        const response = await fetch('/api/add-event', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            alert(result.message);
+                            closeAddEventModal();
+                            // **關鍵：重新載入頁面以顯示新事件**
+                            window.location.reload(); 
+                        } else {
+                            alert('Failed to add event: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Submission error:', error);
+                        alert('An error occurred while submitting the event.');
+                    }
+                });
+            }
         });
+        */
     </script>
+
 </body>
 </html>
